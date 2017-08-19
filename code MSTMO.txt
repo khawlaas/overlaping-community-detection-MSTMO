@@ -1,0 +1,230 @@
+def MSTMO(f,sep):
+    #Graph construction  
+    G=nx.read_edgelist(f, comments='#', delimiter=sep, nodetype=int,encoding='utf-8')
+    
+    
+    G3=nx.Graph()
+    t=time.time()
+    
+    
+    ns=G.number_of_nodes()
+    N=G.number_of_edges()
+    i=0
+    w1=[]
+    T=G.edges()
+    
+    
+    #for edge in T:
+        #print(edge)    
+    i=0
+    print('a')
+    #joinning each edge to its weight
+    while i<len(T):
+        z=len(list(nx.common_neighbors(G, T[i][0], T[i][1])))
+        x=len(G.neighbors(T[i][0]))
+        x1=len(G.neighbors(T[i][1]))
+        if z>0:
+            
+            G[T[i][0]][T[i][1]]['weight']=((x+x1-z)/z)
+        else:
+            
+            G[T[i][0]][T[i][1]]['weight']=(x+x1)
+        i=i+1
+        
+    print('b')
+    #spanning tree construction
+    tr=nx.minimum_spanning_tree(G)
+    print('d')
+    tr1=sorted(tr.edges(data=True))
+    print('c')
+   
+    L=[]
+    su=0
+    cpt=0
+    for i in tr1:
+        G3.add_edge(i[0],i[1])
+        #p=i[2].get("weight")
+        #L.append([p,i[0],i[1]])
+        
+        #print(su)
+    #nx.draw(G3, with_labels=True)
+    #plt.show()
+       
+    #L.sort()
+    
+    tr.clear()
+    #print(L)
+    l1=[]
+    
+    for i in G3.nodes():
+        l1.append([G3.degree(i),i])
+
+    
+    i=0
+    l1.sort(reverse=True)
+    ll=[]
+    for k in l1:
+        ll.append(k[1])
+    #print(ll)
+    re=[]
+    mm=0
+    up=[]
+    for k in ll:
+        b=G3.neighbors(k)
+        print(k)
+        c=[]
+        
+        i=0
+        while i <len(b):
+            j=i+1
+            while j<len(b):
+                if G.has_edge(b[i],b[j]):
+                    c.append([k,b[i],b[j]])
+                j=j+1
+            i=i+1
+        
+        
+            
+        jj=0
+        while jj <len(c):
+            j1=jj+1
+            while j1<len(c):
+                if len(set(c[j1]).intersection(set(c[jj])))>len(set(c[j1]))/2 or len(set(c[j1]).intersection(set(c[jj])))>len(set(c[jj]))/2 :
+                    v=set(c[j1]).union(set(c[jj]))
+                    c.pop(j1)
+                    c[jj]=list(v)
+                    
+                else:
+                    j1=j1+1
+            jj=jj+1
+        #print(c)
+        if len(b)==1 :
+            c.append([k,b[0]])
+        for k in c:
+            re.append(k)
+            for ll in k:
+                up.append(ll)
+    sup=list(set(G.nodes())-set(up))
+    #print('up',up)
+    re.sort(key=len,reverse=True)
+    
+    #print('re',re)
+    res=re
+    print('len',len(res))
+    r=0
+    
+    #tr=G.nodes()
+    #G.clear()
+    
+        
+    print('len',len(res))
+    for k in sup:
+            print(k)
+        
+            max=0
+            ne=G.neighbors(k)
+            #print(ne)
+            i=0
+            while i <len(res):
+                aa=len(set(ne).intersection(res[i]))
+                
+                if aa>=max:
+                    max=aa
+                    temp=i
+                    if (aa)>len(ne)-aa:
+                        print('b')
+                        i=len(res)
+                i=i+1
+            if max>0:
+                res[temp].append(k)
+            else:
+                res.append([k])
+    
+    
+    
+    
+    #merging part
+    r=0
+    while(r<len(res)):
+        j=r+1
+        while j<len(res):
+            if  len(set(res[r]).intersection(res[j]))>=(len(res[j])/2):
+                res[r]=list(set(res[r]).union(res[j]))
+                res.pop(j)
+                
+            else:
+                j=j+1
+        if j==len(res):
+            
+            r=r+1
+    r=0
+    print("r")
+    while(r<len(res)):
+        j=r+1
+        while j<len(res):
+            if  len(set(res[r]).intersection(res[j]))>=(len(res[j])/3):
+                res[r]=list(set(res[r]).union(res[j]))
+                res.pop(j)
+                
+            else:
+                j=j+1
+        if j==len(res):
+            
+            r=r+1
+    r=0
+    print("r")
+    while(r<len(res)):
+        j=r+1
+        while j<len(res):
+            if  len(set(res[r]).intersection(res[j]))>=(len(res[j])/4):
+                res[r]=list(set(res[r]).union(res[j]))
+                res.pop(j)
+                
+            else:
+                j=j+1
+        if j==len(res):
+            
+            r=r+1
+    
+    print("r")
+    
+    
+    
+    #print(res)
+    print("r")
+    #fichier = open("C:/Users/ASMI/Documents/networks/ourcomtt1.txt", "w")
+    #fichier = open("C:/Users/khawla/Documents/ourcomtt1.txt", "w")
+    fichier = open("ourcomtt1.txt", "w")
+    #fichier = open("C:/Users/loutfi/Desktop/networks/ourcom1.txt", "w")
+    for res1 in res:
+        for k in res1:
+            fichier.write(str(k))
+            fichier.write(' ')
+        fichier.write('\n')
+    fichier.close()
+    t2=time.time()
+    print(t2-t)
+    O=[]
+    for i in G.nodes():
+        cpt=0
+        for r in res:
+            if i in r:
+                cpt=cpt+1
+        O.append(cpt)
+    #print(O)
+    print(len(O))
+    N=len(G.edges())
+    m=0
+    #res=[[2, 26 ,34, 38, 46 ,90, 104 ,106, 110] ,[3, 7 ,14, 16, 33, 40, 48 ,61 ,65 ,101, 107] ,[4 ,6 ,11, 41 ,53 ,73, 75 ,82, 85, 99, 103, 108] ,[1 ,5 ,10, 17, 24 ,42, 94, 105] ,[12, 25, 29, 51, 70, 91 ],[8, 9 ,22 ,23 ,52, 69 ,78 ,79 ,109, 112 ],[13, 15, 19 ,27 ,32, 35, 37, 39, 43, 44, 55, 62 ,72 ,86, 100] ,[47, 50, 54, 59 ,68 ,74 ,84 ,89 ,111 ,115 ],[20, 30, 31, 36 ,56, 80, 81, 83, 95, 102 ],[18 ,21 ,28 ,57 ,60, 63 ,64, 66, 71, 77, 88, 96, 97, 114] ,[45, 49 ,58, 67 ,76, 87, 92, 93, 98, 113 ]]
+    #[[2 ,3, 4 ,8 ,9 ,10 ,14 ,15, 16, 19, 21, 23, 24, 25, 26, 27 ,28 ,29, 30, 31 ,32, 33, 34],[1, 2, 3, 4 ,5, 6, 7, 8 ,11, 12, 13, 14 ,17, 18, 20, 22]] 
+
+    #[[2 ,3, 4 ,8 ,9 ,10 ,14 ,15, 16, 19, 21, 23, 24, 25, 26, 27 ,28 ,29, 30, 31 ,32, 33, 34],[1, 2, 3, 4 ,5, 6, 7, 8 ,11, 12, 13, 14 ,17, 18, 20, 22]] 
+
+    m=0
+    for i in res:
+        print(i)
+        m=m+modu1(G,list(i),N,O)
+        
+    print(m)
+    m=m/(2*N)
+    print(m)
